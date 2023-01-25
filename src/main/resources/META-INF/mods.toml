@@ -1,0 +1,11 @@
+modLoader = "javafml"
+loaderVersion = "[38,)"
+license = "GNU AGPL 3.0"
+[[mods]]
+modId = "lighteco"
+version = "${file.jarVersion}"
+displayName = "LightEconomy"
+authors = "Tapio"
+description = '''
+
+'''
