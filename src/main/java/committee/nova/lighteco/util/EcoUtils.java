@@ -5,20 +5,20 @@ import net.minecraft.world.entity.player.Player;
 
 import java.math.BigDecimal;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
-import java.util.function.Predicate;
+import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 
 public class EcoUtils {
     public static final BigDecimal ZERO = new BigDecimal(0);
-    public static final Predicate<BigDecimal> NON_NEGATIVE = v -> v.compareTo(ZERO) > -1;
+    public static final BiPredicate<Player, BigDecimal> NON_NEGATIVE = (p, v) -> v.compareTo(ZERO) > -1;
 
-    private static EcoActionResult vary(Player player, BigDecimal value, Predicate<BigDecimal> argChecker,
-                                        Function<BigDecimal, BigDecimal> processor, Predicate<BigDecimal> resultChecker) {
-        if (!argChecker.test(value)) return EcoActionResult.ARG_ILLEGAL;
+    public static EcoActionResult vary(Player player, BigDecimal value, BiPredicate<Player, BigDecimal> argChecker,
+                                       BiFunction<Player, BigDecimal, BigDecimal> processor, BiPredicate<Player, BigDecimal> resultChecker) {
+        if (!argChecker.test(player, value)) return EcoActionResult.ARG_ILLEGAL;
         final AtomicReference<EcoActionResult> result = new AtomicReference<>(EcoActionResult.CAPABILITY_FAILURE);
         player.getCapability(Account.ACCOUNT).ifPresent(a -> {
-                    final BigDecimal newValue = a.getBalance().add(processor.apply(value));
-                    if (!resultChecker.test(newValue)) {
+                    final BigDecimal newValue = a.getBalance().add(processor.apply(player, value));
+                    if (!resultChecker.test(player, newValue)) {
                         result.set(EcoActionResult.RESULT_ILLEGAL);
                         return;
                     }
@@ -30,11 +30,11 @@ public class EcoUtils {
     }
 
     public static EcoActionResult debt(Player player, BigDecimal value) {
-        return vary(player, value, NON_NEGATIVE, Function.identity(), NON_NEGATIVE);
+        return vary(player, value, NON_NEGATIVE, (p, v) -> v, NON_NEGATIVE);
     }
 
     public static EcoActionResult credit(Player player, BigDecimal value) {
-        return vary(player, value, NON_NEGATIVE, BigDecimal::negate, NON_NEGATIVE);
+        return vary(player, value, NON_NEGATIVE, (p, v) -> v.negate(), NON_NEGATIVE);
     }
 
     public enum EcoActionResult {
