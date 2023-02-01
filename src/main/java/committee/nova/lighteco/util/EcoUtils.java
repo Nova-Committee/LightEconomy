@@ -12,18 +12,20 @@ public class EcoUtils {
     public static final BigDecimal ZERO = new BigDecimal(0);
     public static final BiPredicate<Player, BigDecimal> NON_NEGATIVE = (p, v) -> v.compareTo(ZERO) > -1;
 
-    public static EcoActionResult vary(Player player, BigDecimal value, BiPredicate<Player, BigDecimal> argChecker,
-                                       BiFunction<Player, BigDecimal, BigDecimal> processor, BiPredicate<Player, BigDecimal> resultChecker) {
+    public static EcoActionResult vary(
+            Player player, BigDecimal value, BiPredicate<Player, BigDecimal> argChecker,
+            BiFunction<Player, BigDecimal, BigDecimal> processor, BiPredicate<Player, BigDecimal> resultChecker
+    ) {
         if (!argChecker.test(player, value)) return EcoActionResult.ARG_ILLEGAL;
         final AtomicReference<EcoActionResult> result = new AtomicReference<>(EcoActionResult.CAPABILITY_FAILURE);
         player.getCapability(Account.ACCOUNT).ifPresent(a -> {
-                    final BigDecimal newValue = a.getBalance().add(processor.apply(player, value));
-                    if (!resultChecker.test(player, newValue)) {
-                        result.set(EcoActionResult.RESULT_ILLEGAL);
-                        return;
-                    }
-                    a.setBalance(newValue);
-                    result.set(EcoActionResult.SUCCESS);
+            final BigDecimal newValue = a.getBalance().add(processor.apply(player, value));
+            if (!resultChecker.test(player, newValue)) {
+                result.set(EcoActionResult.RESULT_ILLEGAL);
+                return;
+            }
+            a.setBalance(newValue);
+            result.set(EcoActionResult.SUCCESS);
                 }
         );
         return result.get();
