@@ -1,11 +1,12 @@
 plugins {
-    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    //id 'com.github.johnrengelman.shadow' version '7.1.2'
     id 'net.minecraftforge.gradle' version '5.1.+'
+    id 'maven-publish'
 }
 
 
 group = 'committee.nova'
-version = '1.0.0'
+version = "${version}"
 
 java {
     archivesBaseName = 'lighteco'
@@ -172,4 +173,52 @@ jar.finalizedBy('reobfJar')
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+}
+
+java {
+    withSourcesJar()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            version = "${version}"
+            artifactId = "lighteco"
+            groupId = "committee.nova"
+
+
+            pom {
+                name = 'lighteco'
+                licenses {
+                    license {
+                        name = 'AGPL V3'
+                        url = 'https://www.gnu.org/licenses/agpl-3.0.html'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'mikhailtapio'
+                        name = 'MikhailTapio'
+                    }
+                }
+            }
+        }
+    }
+
+    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+    repositories {
+        if (System.getenv('MAVEN_USERNAME') != null && System.getenv('MAVEN_PASSWORD') != null) {
+            maven {
+                name 'release'
+                url = 'https://maven.nova-committee.cn/releases'
+
+                credentials {
+                    username System.getenv('MAVEN_USERNAME')
+                    password System.getenv('MAVEN_PASSWORD')
+                }
+            }
+        }
+    }
 }

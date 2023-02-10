@@ -4,6 +4,7 @@ import committee.nova.lighteco.capabilities.impl.Account;
 import net.minecraft.world.entity.player.Player;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
@@ -37,6 +38,12 @@ public class EcoUtils {
 
     public static EcoActionResult credit(Player player, BigDecimal value) {
         return vary(player, value, NON_NEGATIVE, (p, v) -> v.negate(), NON_NEGATIVE);
+    }
+
+    public static Optional<BigDecimal> getBalance(Player player) {
+        final AtomicReference<BigDecimal> result = new AtomicReference<>(null);
+        player.getCapability(Account.ACCOUNT).ifPresent(a -> result.set(a.getBalance()));
+        return result.get() == null ? Optional.empty() : Optional.of(result.get());
     }
 
     public enum EcoActionResult {
