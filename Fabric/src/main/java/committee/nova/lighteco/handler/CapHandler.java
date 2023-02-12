@@ -1,6 +1,7 @@
 package committee.nova.lighteco.handler;
 
 import committee.nova.lighteco.Constants;
+import committee.nova.lighteco.capabilities.api.IAccount;
 import committee.nova.lighteco.capabilities.impl.Account;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
 import dev.onyxstudios.cca.api.v3.component.ComponentRegistry;
@@ -16,8 +17,8 @@ import net.minecraft.resources.ResourceLocation;
  * Description:
  */
 public class CapHandler implements EntityComponentInitializer {
-    public static final ComponentKey<Account> BALANCE =
-            ComponentRegistry.getOrCreate(new ResourceLocation(Constants.MOD_ID, "balance"), Account.class);
+    public static final ComponentKey<IAccount> BALANCE =
+            ComponentRegistry.getOrCreate(new ResourceLocation(Constants.MOD_ID, "balance"), IAccount.class);
     @Override
     public void registerEntityComponentFactories(EntityComponentFactoryRegistry registry) {
         registry.registerForPlayers(BALANCE, Account::new, RespawnCopyStrategy.ALWAYS_COPY);

@@ -1,4 +1,4 @@
-package committee.nova.lighteco.handler.event;
+package committee.nova.lighteco.handler;
 
 import committee.nova.lighteco.Constants;
 import committee.nova.lighteco.capabilities.api.IAccount;
@@ -15,7 +15,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber
-public class ForgeEventHandler {
+public class CapHandler {
     @SubscribeEvent
     public static void registerCapabilities(RegisterCapabilitiesEvent event) {
         event.register(Account.class);
