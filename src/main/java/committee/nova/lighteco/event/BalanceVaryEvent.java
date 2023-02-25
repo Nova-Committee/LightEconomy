@@ -26,8 +26,9 @@ public class BalanceVaryEvent extends PlayerEvent {
         private final BiFunction<Player, BigDecimal, BigDecimal> processor;
         private final BiPredicate<Player, BigDecimal> resultChecker;
 
-        public Pre(Player player, BigDecimal baseValue, BiPredicate<Player, BigDecimal> argChecker,
-                   BiFunction<Player, BigDecimal, BigDecimal> processor, BiPredicate<Player, BigDecimal> resultChecker) {
+        public Pre(
+                Player player, BigDecimal baseValue, BiPredicate<Player, BigDecimal> argChecker,
+                BiFunction<Player, BigDecimal, BigDecimal> processor, BiPredicate<Player, BigDecimal> resultChecker) {
             super(player, baseValue);
             this.argChecker = argChecker;
             this.processor = processor;
