@@ -1,7 +1,9 @@
 package committee.nova.lighteco.util;
 
 import committee.nova.lighteco.capabilities.impl.Account;
+import committee.nova.lighteco.event.BalanceVaryEvent;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.common.MinecraftForge;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -17,18 +19,22 @@ public class EcoUtils {
             Player player, BigDecimal value, BiPredicate<Player, BigDecimal> argChecker,
             BiFunction<Player, BigDecimal, BigDecimal> processor, BiPredicate<Player, BigDecimal> resultChecker
     ) {
-        if (!argChecker.test(player, value)) return EcoActionResult.ARG_ILLEGAL;
+        final BalanceVaryEvent.Pre pre = new BalanceVaryEvent.Pre(player, value, argChecker, processor, resultChecker);
+        if (!MinecraftForge.EVENT_BUS.post(pre)) return EcoActionResult.EVENT_CANCELED;
+        final BigDecimal baseValue = pre.getBaseValue();
+        if (!argChecker.test(player, baseValue)) return EcoActionResult.ARG_ILLEGAL;
         final AtomicReference<EcoActionResult> result = new AtomicReference<>(EcoActionResult.CAPABILITY_FAILURE);
         player.getCapability(Account.ACCOUNT).ifPresent(a -> {
-            final BigDecimal newValue = a.getBalance().add(processor.apply(player, value));
+            final BigDecimal pastValue = a.getBalance();
+            final BigDecimal newValue = pastValue.add(processor.apply(player, baseValue));
             if (!resultChecker.test(player, newValue)) {
                 result.set(EcoActionResult.RESULT_ILLEGAL);
                 return;
             }
             a.setBalance(newValue);
             result.set(EcoActionResult.SUCCESS);
-                }
-        );
+            MinecraftForge.EVENT_BUS.post(new BalanceVaryEvent.Post(player, baseValue, pastValue, newValue));
+        });
         return result.get();
     }
 
@@ -50,7 +56,8 @@ public class EcoUtils {
         SUCCESS("success"),
         ARG_ILLEGAL("arg_illegal"),
         RESULT_ILLEGAL("result_illegal"),
-        CAPABILITY_FAILURE("capability_failure");
+        CAPABILITY_FAILURE("capability_failure"),
+        EVENT_CANCELED("event_canceled");
 
         private final String id;
 
