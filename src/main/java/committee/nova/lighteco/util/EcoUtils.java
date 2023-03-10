@@ -20,7 +20,7 @@ public class EcoUtils {
             BiFunction<Player, BigDecimal, BigDecimal> processor, BiPredicate<Player, BigDecimal> resultChecker
     ) {
         final BalanceVaryEvent.Pre pre = new BalanceVaryEvent.Pre(player, value, argChecker, processor, resultChecker);
-        if (!MinecraftForge.EVENT_BUS.post(pre)) return EcoActionResult.EVENT_CANCELED;
+        if (MinecraftForge.EVENT_BUS.post(pre)) return EcoActionResult.EVENT_CANCELED;
         final BigDecimal baseValue = pre.getBaseValue();
         if (!argChecker.test(player, baseValue)) return EcoActionResult.ARG_ILLEGAL;
         final AtomicReference<EcoActionResult> result = new AtomicReference<>(EcoActionResult.CAPABILITY_FAILURE);
